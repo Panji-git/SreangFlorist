@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sreang Florist — Bespoke Botanical Atelier</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cypress: '#143823',
+            amber: {
+              gold: '#E5A93C',
+            },
+            crimson: {
+              dahlia: '#B91C1C',
+            },
+            parchment: {
+              warm: '#FCF9F4',
+              soft: '#F5EFEB',
+            }
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="bg-parchment-warm text-[#2C3E35] font-sans antialiased min-h-screen flex flex-col justify-between">
+  
+  <!-- Header / Navigation Bar -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-cypress/10 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="assets/Logo_SreangFlorist-removebg-preview.png" alt="Sreang Florist" class="h-12 w-auto object-contain">
+        <div>
+          <span class="font-serif text-2xl font-bold tracking-tight text-cypress">Sreang Florist</span>
+          <span class="block text-xs uppercase tracking-widest text-amber-gold font-medium">Bespoke Botanical Atelier</span>
+        </div>
+      </div>
+      
+      <!-- Right Nav / User Status -->
+      <div class="flex items-center space-x-4">
+        <div id="user-badge" class="hidden items-center space-x-2 text-sm bg-cypress/5 px-3 py-1.5 rounded-full border border-cypress/10">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span id="user-name" class="font-medium text-cypress">Tamu</span>
+        </div>
+        <button id="btn-admin-portal" class="text-xs text-cypress/60 hover:text-cypress font-medium px-2 py-1 rounded transition">
+          Admin Portal
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main SPA Container -->
+  <main id="app-container" class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+    <!-- Initial Loading / Welcome View -->
+    <div class="text-center py-16">
+      <h1 class="font-serif text-4xl sm:text-5xl font-extrabold text-cypress mb-4">
+        Rangkaian Bunga Personal Penuh Makna
+      </h1>
+      <p class="text-base sm:text-lg text-cypress/70 max-w-2xl mx-auto mb-8 font-light">
+        Selamat datang di Sreang Florist. Silakan masuk untuk mulai merangkai buket bunga impian Anda di Atelier Crafting Studio kami.
+      </p>
+      <div class="inline-flex items-center space-x-2 bg-white px-5 py-2.5 rounded-full shadow-sm border border-cypress/10 text-sm text-cypress">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-gold animate-pulse"></span>
+        <span>Sistem Siap Digunakan &bull; Fase 1 Selesai</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-cypress text-parchment-warm py-8 border-t border-cypress/20 text-center text-sm">
+    <p class="opacity-80">&copy; 2026 Sreang Florist — Bespoke Botanical Atelier & Retail Analytics System.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

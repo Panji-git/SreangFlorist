@@ -1,0 +1,12 @@
+/* Custom styles for Sreang Florist Botanical Atelier */
+
+:root {
+  --cypress: #143823;
+  --amber-gold: #E5A93C;
+  --crimson-dahlia: #B91C1C;
+  --warm-parchment: #FCF9F4;
+}
+
+body {
+  background-color: var(--warm-parchment);
+}
