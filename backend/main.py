@@ -8,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
+from backend.routers import auth, catalog, orders, loyalty, export
+
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = BASE_DIR / "frontend"
@@ -27,6 +29,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include Routers
+app.include_router(auth.router)
+app.include_router(catalog.router)
+app.include_router(orders.router)
+app.include_router(loyalty.router)
+app.include_router(export.router)
+
+
 # Root health check endpoint
 @app.get("/api/health", tags=["System"])
 def health_check():
@@ -35,7 +45,15 @@ def health_check():
         "service": "Sreang Florist API",
         "version": "1.0.0",
         "database": "SQLite (sreang_florist.db)",
+        "endpoints": [
+            "/api/auth",
+            "/api/catalog",
+            "/api/orders",
+            "/api/loyalty",
+            "/api/export",
+        ],
     }
+
 
 # Mount static frontend files if directory exists
 if FRONTEND_DIR.exists():
