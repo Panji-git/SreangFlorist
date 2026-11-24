@@ -174,17 +174,12 @@ async function handleAdminLoginSubmit(e) {
 }
 
 function enterAdminPortal() {
+  state.isAdmin = true;
   document.getElementById("customer-header").classList.add("hidden");
   document.getElementById("admin-header").classList.remove("hidden");
 
-  // Hide customer panes
-  document.getElementById("customer-view-studio").classList.add("hidden");
-  document.getElementById("customer-view-loyalty").classList.add("hidden");
-  document.getElementById("customer-view-orders").classList.add("hidden");
-
-  // Show admin root
-  document.getElementById("admin-view-root").classList.remove("hidden");
-  switchAdminTab("orders");
+  // Show Admin Orders by default
+  switchAdminNav("orders");
 }
 
 function exitAdminPortal() {
@@ -194,83 +189,105 @@ function exitAdminPortal() {
 
   document.getElementById("admin-view-root").classList.add("hidden");
   switchCustomerTab("studio");
+  showNotification("Kembali ke antarmuka pelanggan.");
 }
 
 // ============================================================================
-// NAVIGATION TABS
+// NAVIGATION TABS & SESSION MANAGEMENT
 // ============================================================================
 function switchCustomerTab(tab) {
   // Panes
   const pStudio = document.getElementById("customer-view-studio");
   const pLoyalty = document.getElementById("customer-view-loyalty");
-  const pOrders = document.getElementById("customer-view-orders");
+  const pAdminRoot = document.getElementById("admin-view-root");
 
-  // Buttons
+  // Customer Buttons
   const bStudio = document.getElementById("nav-btn-studio");
   const bLoyalty = document.getElementById("nav-btn-loyalty");
-  const bOrders = document.getElementById("nav-btn-orders");
 
-  [pStudio, pLoyalty, pOrders].forEach((p) => p.classList.add("hidden"));
-  [bStudio, bLoyalty, bOrders].forEach((b) => {
-    b.classList.remove("text-cypress", "border-cypress");
-    b.classList.add("text-cypress/60", "border-transparent");
+  if (pAdminRoot) pAdminRoot.classList.add("hidden");
+
+  [pStudio, pLoyalty].forEach((p) => p && p.classList.add("hidden"));
+  [bStudio, bLoyalty].forEach((b) => {
+    if (b) {
+      b.classList.remove("text-cypress", "border-cypress");
+      b.classList.add("text-cypress/60", "border-transparent");
+    }
   });
 
   if (tab === "studio") {
-    pStudio.classList.remove("hidden");
-    bStudio.classList.add("text-cypress", "border-cypress");
-    bStudio.classList.remove("text-cypress/60", "border-transparent");
+    if (pStudio) pStudio.classList.remove("hidden");
+    if (bStudio) {
+      bStudio.classList.add("text-cypress", "border-cypress");
+      bStudio.classList.remove("text-cypress/60", "border-transparent");
+    }
   } else if (tab === "loyalty") {
     if (!state.currentUser) {
       openLoginModal();
       return;
     }
-    pLoyalty.classList.remove("hidden");
-    bLoyalty.classList.add("text-cypress", "border-cypress");
-    bLoyalty.classList.remove("text-cypress/60", "border-transparent");
-    loadCustomerLoyalty();
-  } else if (tab === "orders") {
-    if (!state.currentUser) {
-      openLoginModal();
-      return;
+    if (pLoyalty) pLoyalty.classList.remove("hidden");
+    if (bLoyalty) {
+      bLoyalty.classList.add("text-cypress", "border-cypress");
+      bLoyalty.classList.remove("text-cypress/60", "border-transparent");
     }
-    pOrders.classList.remove("hidden");
-    bOrders.classList.add("text-cypress", "border-cypress");
-    bOrders.classList.remove("text-cypress/60", "border-transparent");
+    loadCustomerLoyalty();
     loadCustomerOrders();
   }
 }
 
-function switchAdminTab(tab) {
+function switchAdminNav(nav) {
+  const pStudio = document.getElementById("customer-view-studio");
+  const pLoyalty = document.getElementById("customer-view-loyalty");
+  const pAdminRoot = document.getElementById("admin-view-root");
+
   const pOrders = document.getElementById("admin-pane-orders");
   const pInventory = document.getElementById("admin-pane-inventory");
   const pAnalytics = document.getElementById("admin-pane-analytics");
 
-  const bOrders = document.getElementById("admin-tab-orders");
-  const bInventory = document.getElementById("admin-tab-inventory");
-  const bAnalytics = document.getElementById("admin-tab-analytics");
-
-  [pOrders, pInventory, pAnalytics].forEach((p) => p.classList.add("hidden"));
-  [bOrders, bInventory, bAnalytics].forEach((b) => {
-    b.classList.remove("text-white", "border-amber-gold");
-    b.classList.add("text-parchment-warm/70", "border-transparent");
+  const navIds = ["studio", "loyalty", "orders", "inventory", "analytics"];
+  navIds.forEach((id) => {
+    const btn = document.getElementById(`admin-nav-${id}`);
+    if (btn) {
+      btn.classList.remove("text-white", "border-amber-gold");
+      btn.classList.add("text-parchment-warm/70", "border-transparent");
+    }
   });
 
-  if (tab === "orders") {
-    pOrders.classList.remove("hidden");
-    bOrders.classList.add("text-white", "border-amber-gold");
-    bOrders.classList.remove("text-parchment-warm/70", "border-transparent");
-    loadAdminOrders();
-  } else if (tab === "inventory") {
-    pInventory.classList.remove("hidden");
-    bInventory.classList.add("text-white", "border-amber-gold");
-    bInventory.classList.remove("text-parchment-warm/70", "border-transparent");
-    loadAdminInventory();
-  } else if (tab === "analytics") {
-    pAnalytics.classList.remove("hidden");
-    bAnalytics.classList.add("text-white", "border-amber-gold");
-    bAnalytics.classList.remove("text-parchment-warm/70", "border-transparent");
-    loadAdminAnalytics();
+  const activeBtn = document.getElementById(`admin-nav-${nav}`);
+  if (activeBtn) {
+    activeBtn.classList.add("text-white", "border-amber-gold");
+    activeBtn.classList.remove("text-parchment-warm/70", "border-transparent");
+  }
+
+  // Switch Views between Customer and Admin Panes
+  if (nav === "studio") {
+    if (pAdminRoot) pAdminRoot.classList.add("hidden");
+    if (pLoyalty) pLoyalty.classList.add("hidden");
+    if (pStudio) pStudio.classList.remove("hidden");
+  } else if (nav === "loyalty") {
+    if (pAdminRoot) pAdminRoot.classList.add("hidden");
+    if (pStudio) pStudio.classList.add("hidden");
+    if (pLoyalty) pLoyalty.classList.remove("hidden");
+    loadCustomerLoyalty();
+    loadCustomerOrders();
+  } else {
+    if (pStudio) pStudio.classList.add("hidden");
+    if (pLoyalty) pLoyalty.classList.add("hidden");
+    if (pAdminRoot) pAdminRoot.classList.remove("hidden");
+
+    [pOrders, pInventory, pAnalytics].forEach((p) => p && p.classList.add("hidden"));
+
+    if (nav === "orders") {
+      if (pOrders) pOrders.classList.remove("hidden");
+      loadAdminOrders();
+    } else if (nav === "inventory") {
+      if (pInventory) pInventory.classList.remove("hidden");
+      loadAdminInventory();
+    } else if (nav === "analytics") {
+      if (pAnalytics) pAnalytics.classList.remove("hidden");
+      loadAdminAnalytics();
+    }
   }
 }
 
@@ -563,7 +580,7 @@ async function submitOrder() {
 
 function closeSuccessModal() {
   document.getElementById("modal-order-success").classList.add("hidden");
-  switchCustomerTab("orders");
+  switchCustomerTab("loyalty");
 }
 
 // ============================================================================
@@ -689,6 +706,11 @@ async function loadAdminOrders(statusFilter = state.currentAdminStatusFilter) {
     const res = await fetch(url);
     const orders = await res.json();
 
+    const countBadge = document.getElementById("admin-orders-count-badge");
+    if (countBadge) {
+      countBadge.textContent = `${orders.length} Transaksi`;
+    }
+
     if (!orders.length) {
       container.innerHTML = `<p class="p-8 text-center text-sm text-cypress/50">Tidak ada pesanan dengan filter status ini.</p>`;
       return;
@@ -773,8 +795,20 @@ function filterAdminOrders(status) {
   buttons.forEach((b) => {
     b.className = "admin-filter-btn bg-white hover:bg-cypress/5 text-cypress px-3 py-1.5 rounded-lg border border-cypress/10 font-medium";
   });
-  event.target.className = "admin-filter-btn bg-cypress text-white px-3 py-1.5 rounded-lg font-medium";
+  if (event && event.target) {
+    event.target.className = "admin-filter-btn bg-cypress text-white px-3 py-1.5 rounded-lg font-medium";
+  }
   loadAdminOrders(status);
+}
+
+function exportOrdersCSV() {
+  const status = state.currentAdminStatusFilter;
+  let url = "/api/export/orders";
+  if (status) {
+    url += `?status=${encodeURIComponent(status)}`;
+  }
+  showNotification("Mengunduh file riwayat pesanan (CSV)...");
+  window.location.href = url;
 }
 
 async function updateOrderStatus(orderId, newStatus) {

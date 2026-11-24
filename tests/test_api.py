@@ -127,6 +127,11 @@ def test_export_endpoints():
     assert res_fpgrowth.status_code == 200
     assert "Transaction_ID,Itemsets" in res_fpgrowth.text
 
+    # Orders History export
+    res_orders = client.get("/api/export/orders")
+    assert res_orders.status_code == 200
+    assert "ID_Pesanan,ID_Pelanggan,Nama_Pelanggan,No_Telepon,Tanggal_Pickup,Slot_Waktu" in res_orders.text
+
 
 def test_analytics_summary():
     res = client.get("/api/analytics/summary")

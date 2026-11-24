@@ -7,7 +7,8 @@ and live algorithm evaluation metrics for the Admin Dashboard.
 import csv
 import io
 import sqlite3
-from fastapi import APIRouter, Depends
+from typing import Optional
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import Response
 
 from backend.database import get_db
@@ -97,6 +98,92 @@ def export_fpgrowth_csv(db: sqlite3.Connection = Depends(get_db)):
         content=csv_content,
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=fp_growth.csv"},
+    )
+
+
+@router.get("/export/orders")
+def export_orders_csv(status: Optional[str] = Query(None), db: sqlite3.Connection = Depends(get_db)):
+    """
+    Exports full order history for Admin with customer details, pickup date/slot, components, price, points, and status.
+    """
+    cursor = db.cursor()
+    query = """
+        SELECT 
+            o.id,
+            u.id AS user_id,
+            u.name AS customer_name,
+            u.phone_number,
+            o.pickup_date,
+            o.pickup_time_slot,
+            COALESCE(o.card_theme, '-') AS card_theme,
+            COALESCE(o.card_message, '-') AS card_message,
+            GROUP_CONCAT(ma.name, ' | ') AS components,
+            o.base_price,
+            o.points_used,
+            o.total_price,
+            o.points_earned,
+            o.status,
+            o.created_at
+        FROM orders o
+        JOIN users u ON o.user_id = u.id
+        LEFT JOIN order_customizations oc ON o.id = oc.order_id
+        LEFT JOIN master_attributes ma ON oc.attribute_id = ma.id
+        WHERE 1=1
+    """
+    params = []
+    if status:
+        query += " AND o.status = ?"
+        params.append(status)
+    query += " GROUP BY o.id ORDER BY o.created_at DESC"
+
+    cursor.execute(query, tuple(params))
+    rows = cursor.fetchall()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "ID_Pesanan",
+        "ID_Pelanggan",
+        "Nama_Pelanggan",
+        "No_Telepon",
+        "Tanggal_Pickup",
+        "Slot_Waktu",
+        "Tema_Kartu",
+        "Pesan_Kartu",
+        "Komponen_Buket",
+        "Base_Price",
+        "Poin_Digunakan",
+        "Total_Harga",
+        "Poin_Didapat",
+        "Status",
+        "Tanggal_Dibuat",
+    ])
+
+    for row in rows:
+        writer.writerow([
+            row["id"],
+            row["user_id"],
+            row["customer_name"],
+            row["phone_number"],
+            row["pickup_date"],
+            row["pickup_time_slot"],
+            row["card_theme"],
+            row["card_message"],
+            row["components"],
+            row["base_price"],
+            row["points_used"],
+            row["total_price"],
+            row["points_earned"],
+            row["status"],
+            row["created_at"],
+        ])
+
+    csv_content = output.getvalue()
+    filename = f"riwayat_pesanan_{status.lower()}.csv" if status else "riwayat_pesanan_lengkap.csv"
+    return Response(
+        content=csv_content,
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 
